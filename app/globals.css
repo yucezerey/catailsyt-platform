@@ -1,24 +1,222 @@
 @import "tailwindcss";
 
+/* ============================================================
+   CatAIlyst — Tasarım Sistemi
+   Tek kural: renk, boşluk ve hareket burada tanımlanır.
+   Bileşenlerde gömülü hex kodu bulunmaz.
+   ============================================================ */
+
+@theme {
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+
+  --radius-card: 1rem;
+  --radius-field: 0.75rem;
+}
+
 :root {
-  --cat-white: #ffffff;
-  --cat-bg-soft: #fff8fa;
-  --cat-border: #ffdbe5;
-  --cat-text: #111111;
-  --cat-red: #b91737;
+  color-scheme: light;
+
+  /* Zemin katmanları */
+  --surface-0: oklch(100% 0 0);
+  --surface-1: oklch(98.6% 0.003 340);
+  --surface-2: oklch(96.4% 0.009 350);
+  --surface-3: oklch(93.5% 0.014 350);
+  --surface-inverse: oklch(19% 0.012 350);
+
+  /* Metin — kontrast tabanı AA */
+  --ink-1: oklch(19% 0.008 340);
+  --ink-2: oklch(38% 0.007 340);
+  --ink-3: oklch(52% 0.006 340);
+  --ink-inverse: oklch(98% 0 0);
+
+  /* Kenarlık */
+  --line-1: oklch(91% 0.008 340);
+  --line-2: oklch(84% 0.014 345);
+
+  /* Vurgu — yalnızca aksiyon ve skor */
+  --accent: oklch(45% 0.168 15);
+  --accent-hover: oklch(40% 0.172 15);
+  --accent-soft: oklch(96.5% 0.022 15);
+  --accent-line: oklch(88% 0.055 15);
+  --accent-ink: oklch(38% 0.145 15);
+  --accent-contrast: oklch(100% 0 0);
+
+  /* Anlamsal */
+  --critical: oklch(52% 0.19 25);
+  --critical-soft: oklch(96% 0.03 25);
+  --warning: oklch(62% 0.14 75);
+  --warning-soft: oklch(96% 0.04 85);
+  --success: oklch(52% 0.11 155);
+  --success-soft: oklch(95.5% 0.03 155);
+  --info: oklch(52% 0.11 250);
+  --info-soft: oklch(96% 0.03 250);
+
+  /* Ölçek */
+  --shadow-sm: 0 1px 2px oklch(20% 0.02 340 / 0.05);
+  --shadow-md: 0 4px 16px oklch(20% 0.02 340 / 0.07);
+  --shadow-lg: 0 12px 40px oklch(20% 0.02 340 / 0.1);
+
+  --motion-fast: 120ms;
+  --motion-base: 220ms;
+  --motion-slow: 380ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --surface-0: oklch(16.5% 0.011 340);
+    --surface-1: oklch(20% 0.013 340);
+    --surface-2: oklch(24% 0.016 342);
+    --surface-3: oklch(29% 0.019 344);
+    --surface-inverse: oklch(96% 0.005 340);
+
+    --ink-1: oklch(97% 0.004 340);
+    --ink-2: oklch(82% 0.007 340);
+    --ink-3: oklch(66% 0.009 340);
+    --ink-inverse: oklch(17% 0.01 340);
+
+    --line-1: oklch(29% 0.017 344);
+    --line-2: oklch(37% 0.024 346);
+
+    --accent: oklch(66% 0.165 12);
+    --accent-hover: oklch(72% 0.16 12);
+    --accent-soft: oklch(26% 0.045 12);
+    --accent-line: oklch(38% 0.08 12);
+    --accent-ink: oklch(80% 0.11 12);
+    --accent-contrast: oklch(15% 0.02 12);
+
+    --critical: oklch(68% 0.17 25);
+    --critical-soft: oklch(26% 0.05 25);
+    --warning: oklch(76% 0.13 78);
+    --warning-soft: oklch(27% 0.05 78);
+    --success: oklch(72% 0.12 158);
+    --success-soft: oklch(25% 0.045 158);
+    --info: oklch(70% 0.11 250);
+    --info-soft: oklch(25% 0.045 250);
+
+    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.4);
+    --shadow-md: 0 4px 16px oklch(0% 0 0 / 0.45);
+    --shadow-lg: 0 12px 40px oklch(0% 0 0 / 0.55);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --surface-0: oklch(16.5% 0.011 340);
+  --surface-1: oklch(20% 0.013 340);
+  --surface-2: oklch(24% 0.016 342);
+  --surface-3: oklch(29% 0.019 344);
+  --surface-inverse: oklch(96% 0.005 340);
+
+  --ink-1: oklch(97% 0.004 340);
+  --ink-2: oklch(82% 0.007 340);
+  --ink-3: oklch(66% 0.009 340);
+  --ink-inverse: oklch(17% 0.01 340);
+
+  --line-1: oklch(29% 0.017 344);
+  --line-2: oklch(37% 0.024 346);
+
+  --accent: oklch(66% 0.165 12);
+  --accent-hover: oklch(72% 0.16 12);
+  --accent-soft: oklch(26% 0.045 12);
+  --accent-line: oklch(38% 0.08 12);
+  --accent-ink: oklch(80% 0.11 12);
+  --accent-contrast: oklch(15% 0.02 12);
+
+  --critical: oklch(68% 0.17 25);
+  --critical-soft: oklch(26% 0.05 25);
+  --warning: oklch(76% 0.13 78);
+  --warning-soft: oklch(27% 0.05 78);
+  --success: oklch(72% 0.12 158);
+  --success-soft: oklch(25% 0.045 158);
+  --info: oklch(70% 0.11 250);
+  --info-soft: oklch(25% 0.045 250);
+
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.4);
+  --shadow-md: 0 4px 16px oklch(0% 0 0 / 0.45);
+  --shadow-lg: 0 12px 40px oklch(0% 0 0 / 0.55);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
-  background: var(--cat-white);
-  color: var(--cat-text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--surface-0);
+  color: var(--ink-1);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Odak halkası — her interaktif öğede, WCAG 2.4.11 */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--cat-red) 22%, white);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+/* Ekran okuyucuya özel */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Hareket duyarlılığı */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes cat-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cat-enter {
+  animation: cat-fade-up var(--motion-base) var(--ease-out) both;
+}
+
+/* Yazdırma */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
 }

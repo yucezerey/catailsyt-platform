@@ -1,12 +1,14 @@
 {
-  "name": "cat-readiness-web",
+  "name": "catailyst-platform",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jiti ./test/mantik.test.ts",
+    "dogrula": "npm run lint && npx tsc --noEmit && npm run test && npm run build"
   },
   "dependencies": {
     "docx": "^9.7.1",

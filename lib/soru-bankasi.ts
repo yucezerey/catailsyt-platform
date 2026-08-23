@@ -1,4 +1,4 @@
-// Auto-generated from plan/SORU-BANKASI-TASLAK-v2.md for CatAIlsyt
+// Auto-generated from plan/SORU-BANKASI-TASLAK-v2.md for CatAIlyst
 
 export type QuestionMode = 'individual' | 'corporate';
 
