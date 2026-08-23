@@ -1023,14 +1023,16 @@ export default function Home() {
       <main className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 lg:px-8">
         <header className="rounded-[28px] border border-[#fde5ee] bg-white p-8 shadow-sm">
           <p className="inline-flex rounded-full bg-[#fff0f3] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#9c1938]">
-            CatAIlsyt | AI Readiness Platform
+            CatAIlsyt | Yapay Zekâ Olgunluk Değerlendirmesi
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-[#111] md:text-5xl">
-            Soru sayısı artırıldı — güvenilirlik için ayrıntılı, global çerçeveli rapor
+            Kurumunuzun yapay zekâ olgunluğunu ölçün,
+            <br className="hidden md:block" /> küresel standartlarla karşılaştırın
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[#4b4b4b] md:text-lg">
-            Bireysel ve kurumsal modlarda, Apple tarzı beyaz-zemin arayüzde; NIST AI RMF, ISO/IEC 42001, OECD ve EU AI Act
-            referanslarıyla puanlama yapar. Sonuçlar PDF ve DOCX olarak indirilir.
+            Çalışanlarınızın ve kurumunuzun yapay zekâ okuryazarlığını, NIST AI RMF, ISO/IEC 42001, OECD ve EU AI Act
+            çerçevelerine dayanan bilimsel bir değerlendirmeyle ölçün. 73 soruluk banko, anında puanlama ve indirilebilir
+            profesyonel rapor — PDF ve DOCX olarak.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <button
@@ -1043,10 +1045,10 @@ export default function Home() {
                 start();
               }}
             >
-              Testi Başlat
+              Değerlendirmeye Başla
             </button>
             <a href="#features" className="rounded-full border border-[#ffc5d4] px-5 py-3 text-sm font-semibold text-[#7c1936]">
-              Çıktı formatlarını gör
+              Ne sunuyoruz?
             </a>
           </div>
         </header>
@@ -1361,12 +1363,24 @@ export default function Home() {
           </article>
 
           <section id="features" className="rounded-[28px] border border-[#fde5ee] bg-white p-6 space-y-3">
-            <h2 className="text-lg font-semibold">Neler eklendi</h2>
+            <h2 className="text-lg font-semibold">Ne sunuyoruz?</h2>
             <ul className="space-y-3 text-sm text-[#555]">
-              <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">Bireysel banko: 39 soru, kurumsal banko: 34 soru (esnek paketleme).</li>
-              <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">Çerçeve eşleşmesi: NIST AI RMF, ISO/IEC 42001, OECD AI Principles, EU AI Act, McKinsey Trust Model.</li>
-              <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">Bölüm bazlı skor, güçlü/dikkat alanları ve 30-90 gün + 0-6 ay yol haritası.</li>
-              <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">PDF/DOCX çıktı: aynı rapor standardı; bir sunumda direkt kullanılabilir.</li>
+              <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">
+                <p className="font-semibold text-[#6f1a34]">Kapsamlı değerlendirme</p>
+                <p className="mt-1 text-xs text-[#6d6d6d]">73 soruluk banko; bireysel ve kurumsal modlar, kullanım amacına göre esnek paketleme.</p>
+              </li>
+              <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">
+                <p className="font-semibold text-[#6f1a34]">Küresel standartlarla uyum</p>
+                <p className="mt-1 text-xs text-[#6d6d6d]">NIST AI RMF, ISO/IEC 42001, OECD AI Principles, EU AI Act ve McKinsey Trust Model çerçevelerine dayalı puanlama.</p>
+              </li>
+              <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">
+                <p className="font-semibold text-[#6f1a34]">Aksiyona dönüşen rapor</p>
+                <p className="mt-1 text-xs text-[#6d6d6d]">Bölüm bazlı skor, güçlü ve gelişim alanları, 30-90 gün + 0-6 ay yol haritası.</p>
+              </li>
+              <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">
+                <p className="font-semibold text-[#6f1a34]">Profesyonel çıktı</p>
+                <p className="mt-1 text-xs text-[#6d6d6d]">Raporu PDF veya DOCX olarak indirin; yönetim ve paydaş sunumlarında doğrudan kullanın.</p>
+              </li>
             </ul>
           </section>
         </section>
