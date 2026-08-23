@@ -39,9 +39,18 @@ type FrameworkResult = {
     title: string;
     score: number;
     guidance: string;
+    band: string;
+    levelHint: string;
   }>;
   overall: number;
   status: string;
+};
+
+type ScoreBand = {
+  min: number;
+  label: string;
+  meaning: string;
+  decisionHint: string;
 };
 
 type ReportPayload = {
@@ -52,6 +61,7 @@ type ReportPayload = {
   answeredCount: number;
   overallScore: number;
   level: string;
+  scoreBand: ScoreBand;
   sections: ReportSection[];
   frameworks: FrameworkResult[];
   strengths: string[];
@@ -399,6 +409,49 @@ const LEVEL_BY_PERCENT = [
   { max: -1, label: "Başlangıç" },
 ];
 
+const SCORE_BANDS: ScoreBand[] = [
+  {
+    min: 85,
+    label: "Stratejik Olgunluk",
+    meaning:
+      "Yüksek güvenlik ve sorumluluk refleksleri. Ölçeklenebilir bir kullanıcı/kurum davranışı için hazır.",
+    decisionHint:
+      "Düzeyi koru, ölçüm kalitesini sıklaştırarak sapmaları erken yakala.",
+  },
+  {
+    min: 70,
+    label: "Olgunluk Aşaması",
+    meaning:
+      "Temel çerçeve oturmuş, ancak uygulama disiplinini standardize etme dönemi.",
+    decisionHint:
+      "Ölçüm ve onay zincirlerini tek forma bağla, kritik sorumluluk alanlarını netleştir.",
+  },
+  {
+    min: 50,
+    label: "Gelişen Olgunluk",
+    meaning:
+      "Kullanım iyi niyetli, ama çerçeve-süreç boşlukları var; karar kalitesi değişken olabilir.",
+    decisionHint:
+      "Doğrulama adımlarını her akışa ekle, kurumsal ve bireysel güveni yükselt.",
+  },
+  {
+    min: 30,
+    label: "Temel Kurulum",
+    meaning:
+      "Günlük kullanım var ama risk, denetim ve dokümantasyon alışkanlığı zayıf.",
+    decisionHint:
+      "Acil müdahale listesine gir: 1. sahiplik, 2. kaynak doğrulama, 3. olay protokolü.",
+  },
+  {
+    min: 0,
+    label: "Başlangıç",
+    meaning:
+      "Kurumsal veya bireysel çerçeve henüz davranış düzeyinde görünür değil.",
+    decisionHint:
+      "Mini çerçeve ile başla: soru-hedef eşleştir, hedefli eğitim planla.",
+  },
+];
+
 function levelFromPercent(percent: number) {
   for (const item of LEVEL_BY_PERCENT) {
     if (percent >= item.max) return item.label;
@@ -411,6 +464,10 @@ function statusFromScore(percent: number) {
     if (percent >= item.max) return { label: item.label, status: item.status };
   }
   return { label: "Başlangıç", status: "Yeniden çerçeveleme gerekiyor" };
+}
+
+function scoreBandFromPercent(percent: number) {
+  return SCORE_BANDS.find((item) => percent >= item.min) ?? SCORE_BANDS[SCORE_BANDS.length - 1];
 }
 
 function clamp01(value: number) {
@@ -477,11 +534,15 @@ function computeFrameworkResults(mode: QuestionMode, sections: ReportSection[]) 
               return acc + item.percentage * weight;
             }, 0) /
             related.reduce((acc, item) => acc + (item.total || 0), 0);
+      const normalized = clamp01(Number.isNaN(score) ? 0 : score);
+      const band = scoreBandFromPercent(normalized);
 
       return {
         title: dim.title,
-        score: clamp01(Number.isNaN(score) ? 0 : score),
+        score: normalized,
         guidance: dim.guidance,
+        band: band.label,
+        levelHint: band.meaning,
       };
     });
 
@@ -565,6 +626,8 @@ function buildReport(mode: QuestionMode, company: string, questions: QuestionIte
   const level = levelFromPercent(overallScore);
 
   const frameworks = computeFrameworkResults(mode, sections);
+  const scoreBand = scoreBandFromPercent(overallScore);
+  const answeredCount = questions.filter((q) => answers[q.id] !== undefined).length;
 
   const byScoreAsc = [...sections].sort((a, b) => a.percentage - b.percentage);
   const byScoreDesc = [...sections].sort((a, b) => b.percentage - a.percentage);
@@ -600,9 +663,10 @@ function buildReport(mode: QuestionMode, company: string, questions: QuestionIte
     mode,
     organizationName: company,
     questionCount: questions.length,
-    answeredCount: questions.filter((q) => answers[q.id] !== undefined).length,
+    answeredCount,
     overallScore,
     level,
+    scoreBand,
     sections,
     frameworks,
     strengths: uniq(strongAreas),
@@ -627,8 +691,14 @@ export default function Home() {
   const assessmentRef = useRef<HTMLDivElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const progress = activeQuestions.length ? (Object.keys(answers).length / activeQuestions.length) * 100 : 0;
-  const current = activeQuestions[position];
+  const plannedQuestions = useMemo(() => {
+    return pickQuestionSet(mode, pack, attempt);
+  }, [mode, pack, attempt]);
+
+  const currentSet = started ? activeQuestions : plannedQuestions;
+  const answeredCount = Object.keys(answers).length;
+  const progress = currentSet.length ? (answeredCount / currentSet.length) * 100 : 0;
+  const current = started ? activeQuestions[position] : null;
 
   const report = useMemo(
     () => (done ? buildReport(mode, company, activeQuestions, answers) : null),
@@ -636,22 +706,15 @@ export default function Home() {
   );
 
   const sectionStats = useMemo(() => {
-    const sections = computeSections(activeQuestions, answers);
-    return sections;
-  }, [activeQuestions, answers]);
+    return computeSections(currentSet, answers);
+  }, [currentSet, answers]);
 
   const frameworkStats = useMemo(() => {
-    if (!activeQuestions.length) return [];
+    if (!currentSet.length) return [];
     return computeFrameworkResults(mode, sectionStats);
-  }, [activeQuestions, sectionStats, mode]);
+  }, [currentSet, sectionStats, mode]);
 
-  const overallScore = useMemo(() => {
-    const totalPoints = sectionStats.reduce((acc, section) => acc + section.points, 0);
-    const maxPoints = sectionStats.reduce((acc, section) => acc + section.max, 0);
-    return maxPoints ? clamp01((totalPoints / maxPoints) * 100) : 0;
-  }, [sectionStats]);
-
-  const overallStatus = statusFromScore(overallScore);
+  const estimatedMinutes = Math.max(2, Math.round((currentSet.length * 1.25) / 5));
 
   const start = () => {
     setAttempt((value) => value + 1);
@@ -739,6 +802,17 @@ export default function Home() {
       addLine(`Genel skor: %${report.overallScore.toFixed(1)} (${report.level})`, 11, true);
       y += 4;
 
+      addLine("Bu sonuç nasıl üretildi?", 11, true);
+      addLine(
+        `Skor grubu: ${report.scoreBand.label} — ${report.scoreBand.meaning} Eylem önceliği: ${report.scoreBand.decisionHint}`,
+        9,
+      );
+      addLine(
+        "Her soru 0-4 aralığında puanlandı; bölüm toplamı bölümdeki max puana bölünerek yüzdeye çevrildi. Genel skor, tüm bölüm yüzdelerinin ortalamasıdır.",
+        8,
+      );
+      y += 4;
+
       addLine("Bölüm skoru", 11, true);
       for (const section of report.sections) {
         addLine(
@@ -751,8 +825,9 @@ export default function Home() {
       addLine("Global çerçeve eşleşmesi", 11, true);
       for (const framework of report.frameworks) {
         addLine(`\n${framework.name} — %${framework.overall.toFixed(1)} (${framework.status})`, 10, true);
+        addLine(`Genel yorum: ${framework.dimensions.map((d) => d.levelHint).join(" | ")}`, 8);
         for (const dim of framework.dimensions) {
-          addLine(`• ${dim.title}: %${dim.score.toFixed(1)} — ${dim.guidance}`, 9);
+          addLine(`• ${dim.title}: %${dim.score.toFixed(1)} (${dim.band}) — ${dim.levelHint} — ${dim.guidance}`, 9);
         }
         for (const source of framework.sources) {
           addLine(`- ${source}`, 8);
@@ -839,10 +914,13 @@ export default function Home() {
           text: `${framework.name} — %${framework.overall.toFixed(1)} (${framework.status})`,
           heading: HeadingLevel.HEADING_3,
         }),
+        new Paragraph({
+          text: `Genel yorum: ${framework.dimensions.map((d) => d.levelHint).join(" | ")}`,
+        }),
         ...framework.dimensions.map(
           (dim) =>
             new Paragraph({
-              text: `${dim.title}: %${dim.score.toFixed(1)} — ${dim.guidance}`,
+              text: `${dim.title}: %${dim.score.toFixed(1)} (${dim.band}) — ${dim.levelHint} — ${dim.guidance}`,
               bullet: { level: 1 },
             }),
         ),
@@ -867,7 +945,20 @@ export default function Home() {
                 : new Paragraph({ text: "Kurum bilgisi girilmedi" }),
               new Paragraph({
                 text: `Soru sayısı: ${report.answeredCount}/${report.questionCount} — Genel skor: %${report.overallScore.toFixed(1)} (${report.level})`,
-                spacing: { after: 240 },
+                spacing: { after: 120 },
+              }),
+              new Paragraph({
+                text: `Skor grubu: ${report.scoreBand.label}`,
+              }),
+              new Paragraph({
+                text: report.scoreBand.meaning,
+              }),
+              new Paragraph({
+                text: `Eylem önceliği: ${report.scoreBand.decisionHint}`,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "Bu sonuç nasıl üretildi? Her soru 0-4 aralığında puanlandı; bölüm puanı bölümdeki max puana bölünerek yüzdeye çevrildi. Genel skor bölüm yüzdelerinin ortalamasıdır.",
               }),
               new Paragraph({
                 text: "Bölüm Performansları",
@@ -1033,23 +1124,70 @@ export default function Home() {
               })}
             </div>
 
-            <div className="mt-5 h-2 rounded-full bg-[#ffe7ee]">
-              <div className="h-2 rounded-full bg-[#b91737] transition-all" style={{ width: `${progress}%` }} />
+            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-xl border border-[#f5d2df] bg-[#fff8fb] p-3">
+                <p className="text-[11px] text-[#7a7a7a]">Seçilen set</p>
+                <p className="text-sm font-semibold text-[#7c1936]">{currentSet.length} soru</p>
+                <p className="mt-1 text-xs text-[#6d6d6d]">Paket: {buildPresetLabel(mode, pack)}</p>
+              </div>
+              <div className="rounded-xl border border-[#f5d2df] bg-[#fff8fb] p-3">
+                <p className="text-[11px] text-[#7a7a7a]">Planlanan süre</p>
+                <p className="text-sm font-semibold text-[#7c1936]">~{estimatedMinutes} dk</p>
+                <p className="mt-1 text-xs text-[#6d6d6d]">Hız ve kalite kontrolüne göre değişebilir</p>
+              </div>
+              <div className="rounded-xl border border-[#f5d2df] bg-[#fff8fb] p-3 sm:col-span-2 lg:col-span-1">
+                <p className="text-[11px] text-[#7a7a7a]">İlerleme</p>
+                <p className="text-sm font-semibold text-[#7c1936]">
+                  {answeredCount}/{currentSet.length} cevaplandı
+                </p>
+                <p className="mt-1 text-xs text-[#6d6d6d]">{Math.round(progress)}%</p>
+              </div>
             </div>
-            <p className="mt-2 text-xs text-[#666]">İlerleme: {Math.round(progress)}%</p>
+
+            <div className="mt-4 h-2 rounded-full bg-[#ffe7ee]" role="progressbar" aria-label="Soru ilerleme" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}>
+              <div
+                className="h-2 rounded-full bg-[#b91737] transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-[#666]">Tamamlanma oranı: {Math.round(progress)}%</p>
+
+            {sectionStats.length > 0 && (
+              <div className="mt-4 rounded-xl border border-[#ffe7f0] bg-[#fff8fb] p-3">
+                <p className="text-xs font-semibold text-[#70233d]">Bölüm İlerlemesi</p>
+                <div className="mt-2 space-y-2">
+                  {sectionStats.map((bucket) => {
+                    return (
+                      <div key={bucket.section} className="flex items-center justify-between gap-2 text-xs text-[#555]">
+                        <span className="w-2/5 truncate" title={bucket.sectionTitle}>
+                          {bucket.section}
+                        </span>
+                        <div className="h-1.5 w-2/5 rounded-full bg-[#ffd5de]">
+                          <div
+                            className="h-1.5 rounded-full bg-[#b91737]"
+                            style={{ width: `${bucket.percentage}%` }}
+                          />
+                        </div>
+                        <span className="w-20 text-right">
+                          {bucket.answered}/{bucket.total}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {!started && (
-              <>
-                <button
-                  onClick={() => {
-                    setActiveQuestions(pickQuestionSet(mode, pack, attempt));
-                    start();
-                  }}
-                  className="mt-5 rounded-full bg-[#111] px-5 py-2.5 text-sm font-semibold text-white"
-                >
-                  Teste Başla
-                </button>
-              </>
+              <button
+                onClick={() => {
+                  setActiveQuestions(pickQuestionSet(mode, pack, attempt));
+                  start();
+                }}
+                className="mt-5 rounded-full bg-[#111] px-5 py-2.5 text-sm font-semibold text-white"
+              >
+                Teste Başla
+              </button>
             )}
 
             {started && current && !done && (
@@ -1058,7 +1196,13 @@ export default function Home() {
                   Soru {position + 1} / {activeQuestions.length}
                 </p>
                 <h3 className="text-xl font-semibold text-[#111]">{current.prompt}</h3>
-                <p className="text-xs text-[#6b6b6b]">Bölüm: {SECTION_META[current.section]?.title ?? current.section}</p>
+                <p className="text-xs text-[#6b6b6b]">
+                  Bölüm: {SECTION_META[current.section]?.title ?? current.section} —
+                  {(() => {
+                    const section = sectionStats.find((item) => item.section === current.section);
+                    return section ? ` ${section.answered}/${section.total} cevaplandı` : "";
+                  })()}
+                </p>
 
                 <div className="space-y-2">
                   {current.options.map((option, index) => {
@@ -1099,11 +1243,26 @@ export default function Home() {
             {done && report && (
               <div className="space-y-4" ref={reportRef}>
                 <div className="rounded-2xl border border-[#f4d0de] bg-[#fff8fb] p-4">
-                  <h3 className="text-2xl font-semibold">{mode === "corporate" ? company || "Kurumsal" : "Bireysel"} Rapor</h3>
-                  <p className="mt-1 text-sm text-[#6d6d6d]">{report.questionCount} soru tamamlandı.</p>
+                  <h3 className="text-2xl font-semibold">
+                    {mode === "corporate" ? company || "Kurumsal" : "Bireysel"} Rapor
+                  </h3>
+                  <p className="mt-1 text-sm text-[#6d6d6d]">
+                    {report.questionCount} soruda hesaplanan puan; kullanılabilirlik odaklı çıktı: {report.scoreBand.label}
+                  </p>
                   <p className="mt-2 text-4xl font-bold text-[#b91737]">%{report.overallScore.toFixed(1)}</p>
                   <p className="mt-1 text-sm text-[#6d6d6d]">Seviye: {report.level}</p>
-                  <p className="mt-2 text-sm text-[#555]">{overallStatus.label} — {overallStatus.status}</p>
+                  <p className="mt-2 text-sm text-[#555]">{report.scoreBand.meaning}</p>
+                  <p className="mt-2 text-sm font-semibold text-[#6f1b36]">Öncelik: {report.scoreBand.decisionHint}</p>
+                </div>
+
+                <div className="rounded-xl border border-[#f7dfeb] bg-[#fff8fb] p-4">
+                  <p className="text-sm font-semibold text-[#6b1f3b]">Raporu nasıl okumalı?</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-[#535353]">
+                    <li>Her bölüm skoru 0-4 arası puanın yüzdesel çevirisidir.</li>
+                    <li>Genel skor yalnızca o andaki cevaplara dayanır; doğru/yanlış yerine olgunluk seviyesi gösterir.</li>
+                    <li>Global çerçeve skoru, bölüm skorlarının çerçeveye karşılık gelen bölüm ortalamasıdır.</li>
+                    <li>Soruları tekrar ederseniz, sonuç bir sonraki turda güvence olarak karşılaştırılabilir.</li>
+                  </ul>
                 </div>
 
                 <div className="space-y-2">
@@ -1130,7 +1289,9 @@ export default function Home() {
                         <div className="mt-2 space-y-2">
                           {framework.dimensions.map((dim) => (
                             <p key={dim.title} className="text-xs text-[#4a4a4a]">
-                              {dim.title}: %{dim.score.toFixed(1)}
+                              <span className="font-semibold text-[#6f2038]">{dim.title}:</span> %{dim.score.toFixed(1)}
+                              <span className="text-[#7a7a7a]"> ({dim.band})</span>
+                              <span className="text-[#666]"> — {dim.levelHint}</span>
                             </p>
                           ))}
                         </div>
@@ -1207,11 +1368,6 @@ export default function Home() {
               <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">Bölüm bazlı skor, güçlü/dikkat alanları ve 30-90 gün + 0-6 ay yol haritası.</li>
               <li className="rounded-xl border border-[#ffd9e2] bg-[#fff8fb] p-3">PDF/DOCX çıktı: aynı rapor standardı; bir sunumda direkt kullanılabilir.</li>
             </ul>
-
-            <p className="rounded-xl border border-[#ffd4df] bg-[#fff0f5] p-3 text-xs text-[#5a5a5a]">
-              Not: Bu sürümde metrikler, kullanım anındaki cevaplara dayanır. Kurumsal kararlar için atıf olarak bir uyum danışmanı ile birlikte
-              çerçeve skorlarını tamamlamanızı öneririz.
-            </p>
           </section>
         </section>
       </main>
