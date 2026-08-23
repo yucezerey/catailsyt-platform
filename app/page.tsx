@@ -774,78 +774,244 @@ export default function Home() {
     try {
       const { jsPDF } = await import("jspdf");
       const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "p" });
-      const marginLeft = 14;
-      const maxWidth = 182;
-      let y = 18;
 
-      const addLine = (text: string, fontSize = 10, bold = false) => {
-        doc.setFont("helvetica", bold ? "bold" : "normal");
-        doc.setFontSize(fontSize);
-        const lines = doc.splitTextToSize(text, maxWidth);
-        for (const line of lines) {
-          if (y >= 285) {
-            doc.addPage();
-            y = 18;
-          }
-          doc.text(line, marginLeft, y);
-          y += 6;
+      const loadFont = async (url: string) => {
+        const res = await fetch(url);
+        const buf = await res.arrayBuffer();
+        let binary = "";
+        const bytes = new Uint8Array(buf);
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary);
+      };
+      const regB64 = await loadFont("/fonts/DejaVuSans.ttf");
+      const boldB64 = await loadFont("/fonts/DejaVuSans-Bold.ttf");
+      doc.addFileToVFS("DejaVuSans.ttf", regB64);
+      doc.addFileToVFS("DejaVuSans-Bold.ttf", boldB64);
+      doc.addFont("DejaVuSans.ttf", "DejaVu", "normal");
+      doc.addFont("DejaVuSans-Bold.ttf", "DejaVu", "bold");
+
+      const RED: [number, number, number] = [185, 23, 55];
+      const DARK: [number, number, number] = [17, 17, 17];
+      const GRAY: [number, number, number] = [102, 102, 102];
+      const LIGHT: [number, number, number] = [253, 229, 238];
+      const margin = 16;
+      const pageW = 210;
+      const maxW = pageW - margin * 2;
+      let y = 24;
+      let page = 1;
+
+      const newPageIfNeeded = (needed: number) => {
+        if (y + needed > 287) {
+          doc.addPage();
+          page += 1;
+          y = 20;
+          doc.setFont("DejaVu", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(150, 150, 150);
+          doc.text("CatAIlsyt — AI Olgunluk Raporu", margin, 10);
+          doc.text(`Sayfa ${page}`, pageW - margin, 10, { align: "right" });
+          y = 24;
         }
       };
 
-      addLine("CatAIlsyt: AI Okur-Yazarlık ve Uyum Raporu", 14, true);
-      addLine(`Tarih: ${report.generatedAt}`);
-      addLine(`Profil: ${report.mode === "corporate" ? "Kurumsal" : "Bireysel"}`);
+      const sectionHeader = (title: string) => {
+        newPageIfNeeded(16);
+        doc.setFillColor(...LIGHT);
+        doc.roundedRect(margin, y, maxW, 10, 2, 2, "F");
+        doc.setFillColor(...RED);
+        doc.rect(margin, y, 2.5, 10, "F");
+        doc.setFont("DejaVu", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(...DARK);
+        doc.text(title, margin + 6, y + 7);
+        y += 15;
+      };
+
+      const para = (text: string, size = 10, color: [number, number, number] = GRAY, bold = false, indent = 0) => {
+        doc.setFont("DejaVu", bold ? "bold" : "normal");
+        doc.setFontSize(size);
+        doc.setTextColor(...color);
+        const lines = doc.splitTextToSize(text, maxW - indent);
+        for (const line of lines) {
+          newPageIfNeeded(6);
+          doc.text(line, margin + indent, y);
+          y += size * 0.5 + 1.2;
+        }
+      };
+
+      const bullet = (text: string, size = 9.5, color: [number, number, number] = [68, 68, 68]) => {
+        doc.setFont("DejaVu", "normal");
+        doc.setFontSize(size);
+        doc.setTextColor(...color);
+        const lines = doc.splitTextToSize(text, maxW - 6);
+        lines.forEach((line: string, idx: number) => {
+          newPageIfNeeded(6);
+          if (idx === 0) {
+            doc.setFillColor(...RED);
+            doc.circle(margin + 1.5, y - 1.4, 0.8, "F");
+          }
+          doc.text(line, margin + 5, y);
+          y += size * 0.5 + 1;
+        });
+      };
+
+      // ---------- KAPAK ----------
+      doc.setFillColor(...RED);
+      doc.rect(0, 0, pageW, 46, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("DejaVu", "bold");
+      doc.setFontSize(9);
+      doc.text("CatAIlsyt", margin, 12);
+      doc.setFontSize(22);
+      doc.text("Yapay Zekâ Olgunluk Raporu", margin, 26);
+      doc.setFont("DejaVu", "normal");
+      doc.setFontSize(11);
+      doc.text(
+        report.mode === "corporate" ? (report.organizationName || "Kurumsal Değerlendirme") : "Bireysel Değerlendirme",
+        margin,
+        36,
+      );
+      y = 58;
+
+      doc.setFont("DejaVu", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(...GRAY);
+      doc.text(`Tarih: ${report.generatedAt}`, margin, y);
+      doc.text(`Profil: ${report.mode === "corporate" ? "Kurumsal" : "Bireysel"}`, margin, y + 5);
       if (report.mode === "corporate") {
-        addLine(`Kurum: ${report.organizationName || "Belirtilmedi"}`);
+        doc.text(`Kurum: ${report.organizationName || "Belirtilmedi"}`, margin, y + 10);
+        y += 15;
+      } else {
+        y += 10;
       }
-      addLine(`Soru sayısı: ${report.answeredCount}/${report.questionCount}`);
-      addLine(`Genel skor: %${report.overallScore.toFixed(1)} (${report.level})`, 11, true);
-      y += 4;
+      doc.text(`Yanıtlanan soru: ${report.answeredCount}/${report.questionCount}`, margin, y);
+      y += 8;
 
-      addLine("Bu sonuç nasıl üretildi?", 11, true);
-      addLine(
-        `Skor grubu: ${report.scoreBand.label} — ${report.scoreBand.meaning} Eylem önceliği: ${report.scoreBand.decisionHint}`,
-        9,
-      );
-      addLine(
-        "Her soru 0-4 aralığında puanlandı; bölüm toplamı bölümdeki max puana bölünerek yüzdeye çevrildi. Genel skor, tüm bölüm yüzdelerinin ortalamasıdır.",
-        8,
-      );
-      y += 4;
+      newPageIfNeeded(34);
+      doc.setFillColor(...LIGHT);
+      doc.roundedRect(margin, y, maxW, 30, 4, 4, "F");
+      doc.setFont("DejaVu", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(...GRAY);
+      doc.text("GENEL OLGUNLUK SKORU", margin + 8, y + 8);
+      doc.setFontSize(26);
+      doc.setTextColor(...RED);
+      doc.text(`%${report.overallScore.toFixed(1)}`, margin + 8, y + 23);
+      doc.setFont("DejaVu", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(...DARK);
+      doc.text(report.scoreBand.label, margin + 55, y + 14);
+      doc.setFont("DejaVu", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(...GRAY);
+      const bandMeaning = doc.splitTextToSize(report.scoreBand.meaning, maxW - 60);
+      bandMeaning.forEach((line: string, idx: number) => {
+        doc.text(line, margin + 55, y + 20 + idx * 4.5);
+      });
+      y += 38;
 
-      addLine("Bölüm skoru", 11, true);
+      sectionHeader("Bu Sonuç Nasıl Üretildi?");
+      para(
+        "Her soru 0-4 aralığında puanlandı; bölüm puanı, bölümdeki maksimum puana bölünerek yüzdeye çevrildi. Genel skor, tüm bölüm yüzdelerinin ortalamasıdır. Bu rapor, cevaplarınızın olgunluk seviyesini küresel çerçevelere göre konumlandırır.",
+        9.5,
+        [80, 80, 80],
+      );
+      para(`Eylem önceliği: ${report.scoreBand.decisionHint}`, 9.5, RED, true);
+      y += 3;
+
+      sectionHeader("Bölüm Bazlı Performans");
       for (const section of report.sections) {
-        addLine(
-          `${section.section} ${section.sectionTitle}: %${section.percentage.toFixed(1)} (${section.answered}/${section.total})`,
-          10,
-        );
+        newPageIfNeeded(16);
+        doc.setFont("DejaVu", "bold");
+        doc.setFontSize(9.5);
+        doc.setTextColor(...DARK);
+        doc.text(`${section.section}: ${section.sectionTitle}`, margin, y);
+        doc.setFont("DejaVu", "normal");
+        doc.setFontSize(9.5);
+        doc.setTextColor(...RED);
+        doc.text(`%${section.percentage.toFixed(1)}`, pageW - margin, y, { align: "right" });
+        y += 5;
+        doc.setFillColor(...LIGHT);
+        doc.roundedRect(margin, y, maxW, 3.5, 1.75, 1.75, "F");
+        doc.setFillColor(...RED);
+        doc.roundedRect(margin, y, (maxW * section.percentage) / 100, 3.5, 1.75, 1.75, "F");
+        y += 4;
+        doc.setFont("DejaVu", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(...GRAY);
+        doc.text(`Yanıtlanan: ${section.answered}/${section.total}`, margin + 1, y + 1);
+        y += 8;
       }
-      y += 4;
+      y += 2;
 
-      addLine("Global çerçeve eşleşmesi", 11, true);
+      sectionHeader("Küresel Çerçeve Uyumu");
       for (const framework of report.frameworks) {
-        addLine(`\n${framework.name} — %${framework.overall.toFixed(1)} (${framework.status})`, 10, true);
-        addLine(`Genel yorum: ${framework.dimensions.map((d) => d.levelHint).join(" | ")}`, 8);
+        newPageIfNeeded(20);
+        doc.setFillColor(...RED);
+        doc.roundedRect(margin, y, maxW, 10, 2, 2, "F");
+        doc.setFont("DejaVu", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`${framework.name} — %${framework.overall.toFixed(1)}`, margin + 5, y + 7);
+        y += 14;
+        para(
+          `Genel yorum: ${framework.dimensions.map((d) => d.levelHint).join(" | ")}`,
+          9,
+          [80, 80, 80],
+        );
         for (const dim of framework.dimensions) {
-          addLine(`• ${dim.title}: %${dim.score.toFixed(1)} (${dim.band}) — ${dim.levelHint} — ${dim.guidance}`, 9);
+          bullet(`${dim.title} (%${dim.score.toFixed(1)}, ${dim.band}): ${dim.levelHint}`);
+          bullet(dim.guidance, 8.5, [120, 120, 120]);
         }
         for (const source of framework.sources) {
-          addLine(`- ${source}`, 8);
+          doc.setFont("DejaVu", "normal");
+          doc.setFontSize(7.5);
+          doc.setTextColor(150, 150, 150);
+          const slines = doc.splitTextToSize(`Kaynak: ${source}`, maxW);
+          slines.forEach((line: string) => {
+            newPageIfNeeded(5);
+            doc.text(line, margin, y);
+            y += 4.2;
+          });
         }
+        y += 3;
       }
 
-      addLine("\nGüçlü nokta (3)", 11, true);
-      for (const item of report.strengths) addLine(`- ${item}`, 9);
-      addLine("\nİyileştirme alanları (3)", 11, true);
-      for (const item of report.gaps) addLine(`- ${item}`, 9);
+      sectionHeader("Güçlü Noktalar");
+      for (const item of report.strengths) bullet(item);
+      y += 2;
+      sectionHeader("Gelişim Alanları");
+      for (const item of report.gaps) bullet(item);
+      y += 2;
 
-      addLine("\nEylem Planı", 11, true);
-      addLine("30 gün:", 10, true);
-      for (const item of report.actionPlan.immediate) addLine(`- ${item}`, 9);
-      addLine("60-90 gün:", 10, true);
-      for (const item of report.actionPlan.quarter) addLine(`- ${item}`, 9);
-      addLine("0-6 ay:", 10, true);
-      for (const item of report.actionPlan.roadmap) addLine(`- ${item}`, 9);
+      sectionHeader("Aksiyon Planı");
+      const planSections = [
+        { label: "30 GÜN", items: report.actionPlan.immediate },
+        { label: "60-90 GÜN", items: report.actionPlan.quarter },
+        { label: "0-6 AY", items: report.actionPlan.roadmap },
+      ];
+      for (const plan of planSections) {
+        newPageIfNeeded(12);
+        doc.setFont("DejaVu", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(...RED);
+        doc.text(plan.label, margin, y);
+        y += 5;
+        doc.setFont("DejaVu", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(...DARK);
+        plan.items.forEach((item, idx) => {
+          newPageIfNeeded(5);
+          doc.text(`${idx + 1}.`, margin + 1, y);
+          const plines = doc.splitTextToSize(item, maxW - 8);
+          plines.forEach((line: string) => {
+            doc.text(line, margin + 7, y);
+            y += 4.5;
+          });
+          y += 1;
+        });
+        y += 3;
+      }
 
       const safeName = report.mode === "corporate" && report.organizationName ? report.organizationName.replace(/[^a-zA-Z0-9-_]/g, "-") : "bireysel";
       const now = new Date().toISOString().slice(0, 10);
@@ -854,7 +1020,6 @@ export default function Home() {
       setIsExportingPdf(false);
     }
   };
-
   const downloadDocx = async () => {
     if (!report) return;
     setIsExportingDocx(true);
@@ -868,46 +1033,51 @@ export default function Home() {
         Table,
         TableRow,
         TableCell,
-        WidthType,
         AlignmentType,
+        ShadingType,
       } = await import("docx");
 
+      const headerCell = (text: string) =>
+        new TableCell({
+          shading: { type: ShadingType.CLEAR, fill: "B91737" },
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text, bold: true, color: "FFFFFF" })],
+              alignment: AlignmentType.LEFT,
+            }),
+          ],
+        });
       const rows = [
         new TableRow({
           children: [
-            new TableCell({
-              width: { size: 45, type: WidthType.PERCENTAGE },
-              children: [new Paragraph({ text: "Bölüm", alignment: AlignmentType.LEFT })],
-            }),
-            new TableCell({
-              width: { size: 25, type: WidthType.PERCENTAGE },
-              children: [new Paragraph({ text: "Yanıtlanan", alignment: AlignmentType.LEFT })],
-            }),
-            new TableCell({
-              width: { size: 30, type: WidthType.PERCENTAGE },
-              children: [new Paragraph({ text: "Skor", alignment: AlignmentType.LEFT })],
-            }),
+            headerCell("Bölüm"),
+            headerCell("Yanıtlanan"),
+            headerCell("Skor"),
           ],
         }),
       ];
 
-      for (const section of report.sections) {
+      report.sections.forEach((section, idx) => {
+        const fill = idx % 2 === 1 ? "FFF4F7" : "FFFFFF";
         rows.push(
           new TableRow({
             children: [
               new TableCell({
-                children: [new Paragraph(`${section.section}: ${section.sectionTitle}`)],
+                shading: { type: ShadingType.CLEAR, fill },
+                children: [new Paragraph({ children: [new TextRun({ text: `${section.section}: ${section.sectionTitle}`, bold: true })] })],
               }),
               new TableCell({
+                shading: { type: ShadingType.CLEAR, fill },
                 children: [new Paragraph(`${section.answered}/${section.total}`)],
               }),
               new TableCell({
-                children: [new Paragraph({ children: [new TextRun({ text: `%${section.percentage.toFixed(1)}` })] })],
+                shading: { type: ShadingType.CLEAR, fill },
+                children: [new Paragraph({ children: [new TextRun({ text: `%${section.percentage.toFixed(1)}`, color: "B91737", bold: true })] })],
               }),
             ],
           }),
         );
-      }
+      });
 
       const frameworkParagraphs = frameworkStats.map((framework) => [
         new Paragraph({
@@ -924,9 +1094,12 @@ export default function Home() {
               bullet: { level: 1 },
             }),
         ),
-        new Paragraph({
-          text: framework.sources.map((source) => `• ${source}`).join("\n"),
-        }),
+        ...framework.sources.map(
+          (source) =>
+            new Paragraph({
+              children: [new TextRun({ text: `• ${source}`, size: 16, color: "888888" })],
+            }),
+        ),
       ]).flat();
 
       const doc = new Document({
@@ -961,41 +1134,34 @@ export default function Home() {
                 text: "Bu sonuç nasıl üretildi? Her soru 0-4 aralığında puanlandı; bölüm puanı bölümdeki max puana bölünerek yüzdeye çevrildi. Genel skor bölüm yüzdelerinin ortalamasıdır.",
               }),
               new Paragraph({
-                text: "Bölüm Performansları",
-                heading: HeadingLevel.HEADING_2,
+                children: [new TextRun({ text: "Bölüm Performansları", bold: true, color: "B91737" })],
               }),
               new Table({ rows }),
               new Paragraph({ text: " ", spacing: { after: 200 } }),
               new Paragraph({
-                text: "Global Çerçeve Uyumları",
-                heading: HeadingLevel.HEADING_2,
+                children: [new TextRun({ text: "Global Çerçeve Uyumları", bold: true, color: "B91737" })],
               }),
               ...frameworkParagraphs,
               new Paragraph({
-                text: "Güçlü Noktalar",
-                heading: HeadingLevel.HEADING_2,
+                children: [new TextRun({ text: "Güçlü Noktalar", bold: true, color: "B91737" })],
                 spacing: { before: 120 },
               }),
               ...report.strengths.map((item) => new Paragraph({ text: `• ${item}`, bullet: { level: 0 } })),
               new Paragraph({
-                text: "Dikkat Alanları",
-                heading: HeadingLevel.HEADING_2,
+                children: [new TextRun({ text: "Dikkat Alanları", bold: true, color: "B91737" })],
                 spacing: { before: 120 },
               }),
               ...report.gaps.map((item) => new Paragraph({ text: `• ${item}`, bullet: { level: 0 } })),
               new Paragraph({
-                text: "30 Gün",
-                heading: HeadingLevel.HEADING_2,
+                children: [new TextRun({ text: "30 Gün", bold: true, color: "B91737" })],
               }),
               ...report.actionPlan.immediate.map((item) => new Paragraph({ text: `• ${item}`, bullet: { level: 0 } })),
               new Paragraph({
-                text: "60-90 Gün",
-                heading: HeadingLevel.HEADING_2,
+                children: [new TextRun({ text: "60-90 Gün", bold: true, color: "B91737" })],
               }),
               ...report.actionPlan.quarter.map((item) => new Paragraph({ text: `• ${item}`, bullet: { level: 0 } })),
               new Paragraph({
-                text: "0-6 Ay",
-                heading: HeadingLevel.HEADING_2,
+                children: [new TextRun({ text: "0-6 Ay", bold: true, color: "B91737" })],
               }),
               ...report.actionPlan.roadmap.map((item) => new Paragraph({ text: `• ${item}`, bullet: { level: 0 } })),
             ],
