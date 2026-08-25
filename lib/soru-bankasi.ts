@@ -118,7 +118,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'B2',
     area: 'O',
     prompt: "Yapay zekâya bir görev verdiniz, çıktı beklediğiniz gibi olmadı. Genelde ilk ne yaparsınız?",
-    options: ["Aynı isteği tekrar gönderirim (1 p)", "İsteği daha detaylı ve örnekli yazarım (4 p)", "Görevi küçük adımlara bölerim (5 p)", "Vazgeçip elle yaparım (0 p)", "Başka bir araç denerim (3 p)"],
+    options: ["Aynı isteği tekrar gönderirim", "İsteği daha detaylı ve örnekli yazarım", "Görevi küçük adımlara bölerim", "Vazgeçip elle yaparım", "Başka bir araç denerim"],
     reverse: false,
   },
   {
@@ -136,7 +136,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'B2',
     area: 'O',
     prompt: "Son 30 günde, yapay zekâ çıktısını doğrudan kopyalayıp işinize koyduğunuz kaç örnek oldu?",
-    options: ["Hiç", "1-5", "6-15", "16-30", "30+ *(sıklık arttıkça puan düşer: kör kopyalama riski)*"],
+    options: ["Hiç", "1-5", "6-15", "16-30", "30+"],
     reverse: false,
   },
   {
@@ -199,7 +199,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'B3',
     area: 'O',
     prompt: "Yapay zekâ size \"2025'te Türkiye'de e-ticaret pazarı 2,1 trilyon TL'ye ulaştı\" dedi. Siz bu rakamı hiç duymamıştınız. En doğru davranış?",
-    options: ["Modele \"emin misin\" diye sormak (1 p)", "Rakamı kullanmak, model iyi bir kaynak (0 p)", "Rakamı arama motorundan bağımsız doğrulamak; bulunamazsa kullanmamak (5 p)", "Rakamı \"kaynak: yapay zekâ\" notuyla kullanmak (2 p)"],
+    options: ["Modele \"emin misin\" diye sormak", "Rakamı kullanmak, model iyi bir kaynak", "Rakamı arama motorundan bağımsız doğrulamak; bulunamazsa kullanmamak", "Rakamı \"kaynak: yapay zekâ\" notuyla kullanmak"],
     reverse: false,
   },
   {
@@ -217,7 +217,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'B4',
     area: 'O',
     prompt: "Ekibinizden biri, müşteri şikâyetlerini yapay zekâyla özetleyip yönetime rapor ediyor. Özetlerin doğruluğu hiç kontrol edilmemiş. İlk hamleniz?",
-    options: ["Örneklem alıp özetleri kaynakla karşılaştırmak (5 p)", "Kullanımı durdurup manuel sürece dönmek (3 p)", "Ekibe daha iyi istek yazmayı öğretmek (2 p)", "Sorun görmemek, çıktılar makul görünüyor (0 p)"],
+    options: ["Örneklem alıp özetleri kaynakla karşılaştırmak", "Kullanımı durdurup manuel sürece dönmek", "Ekibe daha iyi istek yazmayı öğretmek", "Sorun görmemek, çıktılar makul görünüyor"],
     reverse: false,
   },
   {
@@ -226,7 +226,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'B4',
     area: 'O',
     prompt: "İşe alım için gelen 200 CV'yi yapay zekâya eleyip kısa liste çıkarttınız. En önemli risk hangisidir?",
-    options: ["Modelin CV'leri okuyamaması (1 p)", "Geçmiş veriye dayalı ayrımcılığın sisteme yerleşmesi ve fark edilmemesi (5 p)", "İşlemin uzun sürmesi (0 p)", "Adayların itiraz etmesi (2 p)"],
+    options: ["Modelin CV'leri okuyamaması", "Geçmiş veriye dayalı ayrımcılığın sisteme yerleşmesi ve fark edilmemesi", "İşlemin uzun sürmesi", "Adayların itiraz etmesi"],
     reverse: false,
   },
   {
@@ -253,7 +253,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'B4',
     area: 'Z',
     prompt: "Bir müşteri, yapay zekâ destekli sisteminizin hakkında yanlış karar verdiğini iddia ediyor. Sistemin kararına itiraz yolu var mı?",
-    options: ["İtiraz yolu yok, sistem kararı kesindir (0 p)", "Müşteriye \"sistem öyle hesapladı\" denir (1 p)", "İnsan inceleme ve itiraz süreci tanımlıdır; müşteriye nasıl başvuracağı söylenir (5 p)", "Kararı sessizce düzeltip müşteriye bildirilmez (2 p)"],
+    options: ["İtiraz yolu yok, sistem kararı kesindir", "Müşteriye \"sistem öyle hesapladı\" denir", "İnsan inceleme ve itiraz süreci tanımlıdır; müşteriye nasıl başvuracağı söylenir", "Kararı sessizce düzeltip müşteriye bildirilmez"],
     reverse: false,
   },
   {
@@ -307,7 +307,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'B5',
     area: 'O',
     prompt: "Yapay zekâ konusunda geride kaldığınızı düşünüyor musunuz?",
-    options: ["Hiç düşünmüyorum", "Nadiren", "Bazen", "Sık sık", "Sürekli *(yüksek kaygı, eğitimde özel ilgi gerektirir)*"],
+    options: ["Hiç düşünmüyorum", "Nadiren", "Bazen", "Sık sık", "Sürekli"],
     reverse: false,
   },
   {
@@ -442,7 +442,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'K2',
     area: 'Z',
     prompt: "Yapay zekâ projeniz için gereken verinin %70'i farklı departmanlarda, %30'u mevcut. En doğru yaklaşım?",
-    options: ["%30 ile başlayıp beklentiyi düşürmek (3 p)", "Projeyi veri tamamlanana kadar ertelemek (2 p)", "Veri sahipleriyle anlaşıp kritik %30'u birleştirmek, eksik veriyi yönetilebilir aşamalara bölmek (5 p)", "Veriyi elle kopyalatmak (1 p)"],
+    options: ["%30 ile başlayıp beklentiyi düşürmek", "Projeyi veri tamamlanana kadar ertelemek", "Veri sahipleriyle anlaşıp kritik %30'u birleştirmek, eksik veriyi yönetilebilir aşamalara bölmek", "Veriyi elle kopyalatmak"],
     reverse: false,
   },
   {
@@ -523,7 +523,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'K4',
     area: 'Z',
     prompt: "Yapay zekâ kaynaklı bir olay/yanlış sonuç yaşandığında kurumunuzun prosedürü nedir?",
-    options: ["Prosedür yok, olaylar kendiliğinden çözülüyor", "Olaylar konuşuluyor ama kayda geçmiyor", "Olay kaydı tutuluyor", "Kayıt + kök neden analizi yapılıyor", "Olay yönetimi, raporlama ve iyileştirme döngüsü tanımlı *(NIST Manage 4.1-4.3)*"],
+    options: ["Prosedür yok, olaylar kendiliğinden çözülüyor", "Olaylar konuşuluyor ama kayda geçmiyor", "Olay kaydı tutuluyor", "Kayıt + kök neden analizi yapılıyor", "Olay yönetimi, raporlama ve iyileştirme döngüsü tanımlı"],
     reverse: false,
   },
   {
@@ -532,7 +532,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'K4',
     area: 'O',
     prompt: "Kurumunuz yapay zekâ kullanımıyla ilgili düzenleyici gelişmeleri (AI Act, KVKK) takip ediyor mu?",
-    options: ["Takip etmiyoruz", "Bireysel ilgi düzeyinde", "Bir kişi/birim sorumlu", "Düzenli izleme + yönetime raporlama var", "Uyum takvimi tanımlı ve uygulanıyor *(2 Ağustos 2026 denetim başlangıcı)*"],
+    options: ["Takip etmiyoruz", "Bireysel ilgi düzeyinde", "Bir kişi/birim sorumlu", "Düzenli izleme + yönetime raporlama var", "Uyum takvimi tanımlı ve uygulanıyor"],
     reverse: false,
   },
   {
@@ -613,7 +613,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'K6',
     area: 'Z',
     prompt: "Yapay zekânın işleri değiştireceği konusu çalışanlarla nasıl konuşuluyor?",
-    options: ["Hiç konuşulmuyor", "Dedikodu düzeyinde", "Yönetim bilgilendirme yaptı", "Düzenli iletişim + soru-cevap ortamı var", "Çalışanlar sürece dahil ediliyor, rollerin geleceği birlikte tasarlanıyor *(değişim yönetiminin olgun hâli)*"],
+    options: ["Hiç konuşulmuyor", "Dedikodu düzeyinde", "Yönetim bilgilendirme yaptı", "Düzenli iletişim + soru-cevap ortamı var", "Çalışanlar sürece dahil ediliyor, rollerin geleceği birlikte tasarlanıyor"],
     reverse: false,
   },
   {
@@ -622,7 +622,7 @@ export const QUESTION_BANK: QuestionItem[] = [
     section: 'K6',
     area: 'O',
     prompt: "Çalışanların yapay zekâ kullanımından duyduğu endişe (iş kaybı, kontrol) kurumda ölçülüyor mu?",
-    options: ["Ölçülmüyor", "Yönetim sezgisel biliyor", "Bir kez anket yapıldı", "Düzenli anket var", "Anket + aksiyon döngüsü var *(endişe ölçülmezse direnç görünmez kalır)*"],
+    options: ["Ölçülmüyor", "Yönetim sezgisel biliyor", "Bir kez anket yapıldı", "Düzenli anket var", "Anket + aksiyon döngüsü var"],
     reverse: false,
   },
   {

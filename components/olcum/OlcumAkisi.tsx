@@ -322,10 +322,22 @@ export function OlcumAkisi() {
           <div className="flex items-center justify-between gap-4">
             <Link
               href="/"
-              className="text-sm font-semibold tracking-tight text-[var(--ink-1)]"
+              className="group flex items-center gap-2.5"
               aria-label={`${MARKA.ad} ana sayfa`}
             >
-              {MARKA.ad}
+              {/* Speaker Agency mikrofon amblemi */}
+              <span
+                className="flex size-7 items-center justify-center rounded-full"
+                style={{ background: MARKA.ustMarka.renk }}
+                aria-hidden="true"
+              >
+                <svg viewBox="0 0 24 24" className="size-3.5 fill-white" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Zm0 14a6 6 0 0 0 6-6h-2a4 4 0 0 1-8 0H6a6 6 0 0 0 6 6Zm-1 2v2h2v-2h-2Z" />
+                </svg>
+              </span>
+              <span className="text-sm font-semibold tracking-tight text-[var(--ink-1)]">
+                {MARKA.ad}
+              </span>
             </Link>
             <div className="flex items-center gap-2">
               {oturum.adim === "sorular" && (
@@ -360,7 +372,7 @@ export function OlcumAkisi() {
       </header>
 
       <main
-        className={`mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 py-8 pb-32 md:px-8 md:py-12 ${
+        className={`mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 py-8 pb-40 md:px-8 md:py-12 ${
           oturum.adim === "sorular" || oturum.adim === "isindirma"
             ? "justify-center md:-mt-10"
             : ""
