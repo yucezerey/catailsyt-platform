@@ -9,6 +9,7 @@ export const MARKA = {
     ad: "speaker agency",
     slogan: "Future. Made. Today.",
     url: "https://speakeragency.com",
+    logo: "/brand/speaker-agency-logo.png",
     renk: "#BF1538",
   },
   /** PDF/DOCX gibi CSS erişimi olmayan çıktılar için sabit palet */

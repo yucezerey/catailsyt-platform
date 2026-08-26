@@ -18,6 +18,7 @@ import { oturumKaydet, oturumOku, oturumSil, raporKaydet, gecmiseEkle } from "@/
 import { sorulariCoz, raporUret } from "@/lib/rapor";
 import { Buton, Kart } from "@/components/ui/temel";
 import { TemaAnahtari } from "@/components/ui/TemaAnahtari";
+import { CatAIlystBrandMark } from "@/components/brand/BrandMarks";
 import { SoruKarti } from "./SoruKarti";
 import { IlerlemeRayi, type RaySegmenti } from "./IlerlemeRayi";
 import { KlavyeIpucu } from "./KlavyeIpucu";
@@ -325,19 +326,7 @@ export function OlcumAkisi() {
               className="group flex items-center gap-2.5"
               aria-label={`${MARKA.ad} ana sayfa`}
             >
-              {/* Speaker Agency mikrofon amblemi */}
-              <span
-                className="flex size-7 items-center justify-center rounded-full"
-                style={{ background: MARKA.ustMarka.renk }}
-                aria-hidden="true"
-              >
-                <svg viewBox="0 0 24 24" className="size-3.5 fill-white" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Zm0 14a6 6 0 0 0 6-6h-2a4 4 0 0 1-8 0H6a6 6 0 0 0 6 6Zm-1 2v2h2v-2h-2Z" />
-                </svg>
-              </span>
-              <span className="text-sm font-semibold tracking-tight text-[var(--ink-1)]">
-                {MARKA.ad}
-              </span>
+              <CatAIlystBrandMark />
             </Link>
             <div className="flex items-center gap-2">
               {oturum.adim === "sorular" && (

@@ -4,6 +4,7 @@ import { QUESTION_BANK } from "@/lib/soru-bankasi";
 import { Buton, Etiket, Kart } from "@/components/ui/temel";
 import { TemaAnahtari } from "@/components/ui/TemaAnahtari";
 import { RadarGrafik } from "@/components/rapor/RadarGrafik";
+import { CatAIlystBrandMark, SpeakerAgencyLogo } from "@/components/brand/BrandMarks";
 
 const SORU_SAYISI = QUESTION_BANK.length;
 
@@ -91,20 +92,8 @@ export default function AnaSayfa() {
     <div className="min-h-screen bg-[var(--surface-0)]">
       <header className="border-b border-[var(--line-1)]">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-5 py-4 md:px-8">
-          <Link href="/" className="group flex items-center gap-2.5">
-            {/* Speaker Agency mikrofon amblemi */}
-            <span
-              className="flex size-7 items-center justify-center rounded-full"
-              style={{ background: MARKA.ustMarka.renk }}
-              aria-hidden="true"
-            >
-              <svg viewBox="0 0 24 24" className="size-3.5 fill-white" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Zm0 14a6 6 0 0 0 6-6h-2a4 4 0 0 1-8 0H6a6 6 0 0 0 6 6Zm-1 2v2h2v-2h-2Z" />
-              </svg>
-            </span>
-            <span className="text-sm font-semibold tracking-tight text-[var(--ink-1)]">
-              {MARKA.ad}
-            </span>
+          <Link href="/" className="group" aria-label={`${MARKA.ad} ana sayfa`}>
+            <CatAIlystBrandMark />
           </Link>
           <div className="flex items-center gap-3">
             <TemaAnahtari />
@@ -336,18 +325,10 @@ export default function AnaSayfa() {
               href={MARKA.ustMarka.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-[var(--ink-3)] transition-colors hover:text-[var(--accent)]"
+              aria-label="Speaker Agency"
+              className="mt-2 inline-flex w-fit rounded-sm opacity-90 transition-opacity hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
             >
-              <span
-                className="inline-flex size-3.5 items-center justify-center rounded-full"
-                style={{ background: MARKA.ustMarka.renk }}
-                aria-hidden="true"
-              >
-                <svg viewBox="0 0 24 24" className="size-2 fill-white" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Zm0 14a6 6 0 0 0 6-6h-2a4 4 0 0 1-8 0H6a6 6 0 0 0 6 6Zm-1 2v2h2v-2h-2Z" />
-                </svg>
-              </span>
-              by {MARKA.ustMarka.ad}
+              <SpeakerAgencyLogo className="h-12 md:h-14" />
             </a>
           </div>
           <span className="text-xs text-[var(--ink-3)]">Cevaplar tarayıcında kalır, sunucuya gönderilmez.</span>
