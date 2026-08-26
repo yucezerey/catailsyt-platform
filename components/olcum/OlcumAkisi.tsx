@@ -361,7 +361,7 @@ export function OlcumAkisi() {
       </header>
 
       <main
-        className={`mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 py-8 pb-40 md:px-8 md:py-12 ${
+        className={`mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 py-8 pb-56 md:px-8 md:py-12 md:pb-44 ${
           oturum.adim === "sorular" || oturum.adim === "isindirma"
             ? "justify-center md:-mt-10"
             : ""
