@@ -185,7 +185,7 @@ export function BaglamAdimi({
   onDegis: (alan: keyof Baglam, deger: string) => void;
 }) {
   return (
-    <div className="cat-enter space-y-7 pb-20">
+    <div className="cat-enter space-y-7 pb-4">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-3)]">
           Bağlam · skora girmez
@@ -199,7 +199,7 @@ export function BaglamAdimi({
       </div>
 
       {BAGLAM_ALANLARI.map((alan) => (
-        <fieldset key={alan.id} className="scroll-mb-40 border-0 p-0">
+        <fieldset key={alan.id} className="scroll-mb-8 border-0 p-0">
           <legend className="text-sm font-semibold text-[var(--ink-1)]">{alan.soru}</legend>
           <p className="mt-0.5 text-xs text-[var(--ink-3)]">{alan.yardim}</p>
           <div className="mt-2.5 flex flex-wrap gap-2">

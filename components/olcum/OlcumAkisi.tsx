@@ -50,6 +50,7 @@ export function OlcumAkisi() {
   // Render sırasında Date.now() çağrılmaz; ilk değer sıfır, adım geçişinde damgalanır.
   const soruBaslangici = useRef<number>(0);
   const ilerlemeZamanlayici = useRef<number | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
 
   /* --------------------------- Yükleme / devam --------------------------- */
 
@@ -233,6 +234,10 @@ export function OlcumAkisi() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oturum.cevaplar, oturum.konum, oturum.adim, otomatikIlerle]);
 
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [oturum.adim, oturum.konum]);
+
   /* ------------------------------- Klavye -------------------------------- */
 
   useEffect(() => {
@@ -316,9 +321,9 @@ export function OlcumAkisi() {
   const baglamTamam = BAGLAM_ALANLARI.every((a) => Boolean(oturum.baglam[a.id]));
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--surface-0)]">
+    <div className="grid h-[100dvh] min-h-screen grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-[var(--surface-0)]">
       {/* Üst çubuk — odak modunda minimum */}
-      <header className="sticky top-0 z-20 border-b border-[var(--line-1)] bg-[var(--surface-0)]/92 backdrop-blur">
+      <header className="z-20 border-b border-[var(--line-1)] bg-[var(--surface-0)]/92 backdrop-blur">
         <div className="mx-auto w-full max-w-2xl px-5 py-3 md:px-8">
           <div className="flex items-center justify-between gap-4">
             <Link
@@ -361,7 +366,9 @@ export function OlcumAkisi() {
       </header>
 
       <main
-        className={`mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 py-8 pb-56 md:px-8 md:py-12 md:pb-44 ${
+        ref={mainRef}
+        data-qa="olcum-scroll"
+        className={`mx-auto flex min-h-0 w-full max-w-2xl flex-col overflow-y-auto overscroll-contain px-5 py-8 pb-8 md:px-8 md:py-12 ${
           oturum.adim === "sorular" || oturum.adim === "isindirma"
             ? "justify-center md:-mt-10"
             : ""
@@ -429,10 +436,11 @@ export function OlcumAkisi() {
         )}
       </main>
 
-      {/* Alt aksiyon çubuğu — mobilde sabit, güvenli alan korumalı */}
+      {/* Alt aksiyon çubuğu — ayrı grid satırı, içeriğin üstüne binmez */}
       {oturum.adim !== "hazirlik" && (
         <div
-          className="fixed inset-x-0 bottom-0 z-20 border-t border-[var(--line-1)] bg-[var(--surface-0)]/95 backdrop-blur"
+          data-qa="bottom-nav"
+          className="z-20 border-t border-[var(--line-1)] bg-[var(--surface-0)]/95 backdrop-blur"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
           <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-4 px-5 py-3 md:px-8">

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { MARKA } from "@/lib/marka";
 
 export function CatAIlystBrandMark({ className = "" }: { className?: string }) {
@@ -41,9 +42,11 @@ export function CatAIlystOlcumIcon() {
 
 export function SpeakerAgencyLogo({ className = "" }: { className?: string }) {
   return (
-    <img
+    <Image
       src={MARKA.ustMarka.logo}
       alt="Speaker Agency"
+      width={1308}
+      height={469}
       className={`${className || "h-10"} w-auto object-contain`}
       loading="lazy"
     />
